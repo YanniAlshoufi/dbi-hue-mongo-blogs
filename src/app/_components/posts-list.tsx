@@ -7,6 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@clerk/nextjs";
+import type { WithId } from "mongodb";
+import type { Post } from "@/server/db/schema";
 
 export function PostList() {
   const { error, isLoading, data: posts } = api.posts.getAll.useQuery();
@@ -31,7 +33,7 @@ export function PostList() {
           ) : (
             <>
               {posts.map((post) => (
-                <PostCard post={post} key={post.id} />
+                <PostCard post={post} key={post._id.toString()} />
               ))}
             </>
           )}
@@ -41,15 +43,7 @@ export function PostList() {
   );
 }
 
-function PostCard(props: {
-  post: {
-    id: number;
-    userId: string;
-    name: string | null;
-    createdAt: Date;
-    updatedAt: Date | null;
-  };
-}) {
+function PostCard(props: { post: WithId<Post> }) {
   const apiUtils = api.useUtils();
   const deletionMutation = api.posts.delete.useMutation({
     onSuccess: async () => {
@@ -66,7 +60,9 @@ function PostCard(props: {
           <Button
             className="hover:to-card bg-transparent shadow-none hover:bg-radial hover:from-red-950"
             onClick={async () =>
-              await deletionMutation.mutateAsync({ postId: props.post.id })
+              await deletionMutation.mutateAsync({
+                postId: props.post._id.toString(),
+              })
             }
           >
             {deletionMutation.isPending ? (

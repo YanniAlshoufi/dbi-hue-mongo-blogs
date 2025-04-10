@@ -1,17 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { api } from "@/trpc/react";
 import { Card } from "@/components/ui/card";
 import { z } from "zod";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@radix-ui/react-tooltip";
-import { Button } from "@/components/ui/button";
 
 export function LatestPost() {
   const utils = api.useUtils();
@@ -25,10 +18,6 @@ export function LatestPost() {
   });
 
   const nameSchema = z.string().trim().min(1);
-
-  useEffect(() => {
-    console.log("hi");
-  }, [isHoveringOverSubmit]);
 
   return (
     <Card className="w-full">
@@ -48,7 +37,6 @@ export function LatestPost() {
             className="w-full rounded-full bg-white/30 px-4 py-2 text-gray-100"
           />
           <button
-            // variant="outline"
             type="submit"
             className={`rounded-full bg-white/10 px-10 py-3 font-semibold text-white transition hover:bg-white/20 disabled:bg-white/30 ${
               nameSchema.safeParse(name).error !== undefined ||
