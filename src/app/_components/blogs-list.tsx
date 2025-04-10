@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@clerk/nextjs";
 import type { WithId } from "mongodb";
-import type { Post } from "@/server/db/schema";
+import type { BlogEntry } from "@/server/db/schema";
 
 export function PostList() {
   const { error, isLoading, data: posts } = api.posts.getAll.useQuery();
@@ -43,7 +43,7 @@ export function PostList() {
   );
 }
 
-function PostCard(props: { post: WithId<Post> }) {
+function PostCard(props: { post: WithId<BlogEntry> }) {
   const apiUtils = api.useUtils();
   const deletionMutation = api.posts.delete.useMutation({
     onSuccess: async () => {
@@ -55,9 +55,9 @@ function PostCard(props: { post: WithId<Post> }) {
   return (
     <li className="w-full">
       <Card className="w-full flex-row justify-between px-5">
-        {props.post.name} - created{" "}
+        {props.post.title} - created{" "}
         {new Date(props.post.createdAt).toLocaleString()}
-        {isSignedIn && userId === props.post.userId ? (
+        {isSignedIn && props.post.authorIds.includes(userId) ? (
           <Button
             className="hover:to-card bg-transparent shadow-none hover:bg-radial hover:from-red-950"
             onClick={async () =>

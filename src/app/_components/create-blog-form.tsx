@@ -17,14 +17,14 @@ export function LatestPost() {
     },
   });
 
-  const nameSchema = z.string().trim().min(1);
+  const titleSchema = z.string().trim().min(1);
 
   return (
     <Card className="w-full">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createPost.mutate({ name: name.trim() });
+          createPost.mutate({ title: name.trim() });
         }}
         className="flex flex-col gap-5 px-5"
       >
@@ -39,13 +39,13 @@ export function LatestPost() {
           <button
             type="submit"
             className={`rounded-full bg-white/10 px-10 py-3 font-semibold text-white transition hover:bg-white/20 disabled:bg-white/30 ${
-              nameSchema.safeParse(name).error !== undefined ||
+              titleSchema.safeParse(name).error !== undefined ||
               createPost.isPending
                 ? "cursor-help"
                 : ""
             }`}
             disabled={
-              nameSchema.safeParse(name).error !== undefined ||
+              titleSchema.safeParse(name).error !== undefined ||
               createPost.isPending
             }
             onMouseOver={() => setIsHoveringOverSubmit(true)}
@@ -53,7 +53,7 @@ export function LatestPost() {
           >
             {createPost.isPending ? (
               <>{"Submitting..."}</>
-            ) : nameSchema.safeParse(name).error !== undefined ? (
+            ) : titleSchema.safeParse(name).error !== undefined ? (
               <p>?</p>
             ) : (
               <span className="icon-[mingcute--check-fill]" />
@@ -61,7 +61,7 @@ export function LatestPost() {
           </button>
         </div>
         {isHoveringOverSubmit &&
-        (nameSchema.safeParse(name).error !== undefined ||
+        (titleSchema.safeParse(name).error !== undefined ||
           createPost.isPending) ? (
           <p>Give the post a name before you can submit.</p>
         ) : (

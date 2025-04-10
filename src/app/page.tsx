@@ -1,7 +1,7 @@
-import { LatestPost } from "@/app/_components/post-form";
+import { LatestPost } from "@/app/_components/create-blog-form";
 import { HydrateClient } from "@/trpc/server";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { PostList } from "./_components/posts-list";
+import { PostList } from "./_components/blogs-list";
 import { Card } from "@/components/ui/card";
 
 export default async function Home() {
