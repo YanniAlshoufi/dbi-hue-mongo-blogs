@@ -3,13 +3,13 @@ import type { ObjectId } from "mongodb";
 export const BLOG_ENTRIES_COLLECTION = "blogEntries";
 export type BlogEntry = {
   title: string;
-  authorIds: string[]; // These IDs come from Clerk, thus strings
+  authorId: string; // These IDs come from Clerk, thus strings
   description: string;
   category:
     | "news"
     | "fashion"
     | "fitness"
-    | "diy"
+    | "DIY"
     | "infographics"
     | "listicles"
     | "case studies"

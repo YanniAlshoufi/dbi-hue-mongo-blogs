@@ -57,7 +57,7 @@ function PostCard(props: { post: WithId<BlogEntry> }) {
       <Card className="w-full flex-row justify-between px-5">
         {props.post.title} - created{" "}
         {new Date(props.post.createdAt).toLocaleString()}
-        {isSignedIn && props.post.authorIds.includes(userId) ? (
+        {isSignedIn && props.post.authorId === userId ? (
           <Button
             className="hover:to-card bg-transparent shadow-none hover:bg-radial hover:from-red-950"
             onClick={async () =>

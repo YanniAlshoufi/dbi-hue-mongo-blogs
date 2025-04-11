@@ -1,17 +1,25 @@
 import { ObjectId } from "mongodb";
 import { z } from "zod";
+import { possibleCategories } from "./categories/possibleCategories";
 
 // MongoDB
 
 export const objectIdSchema = z.instanceof(ObjectId, {
-  message: "The id provided must be a valid Object ID.",
+  message: "The ID provided must be a valid Object ID.",
 });
 
-// Clerk
-
-export const clerkUserIdSchema = z
-  .string({ message: "The ID provided must be a string." })
-  .nonempty("The ID provided cannot be empty.");
+export const objectIdStringSchema = z
+  .string({
+    message: "The ID provided must be a string.",
+  })
+  .length(
+    24,
+    "The ID provided must be 24 characters long to be a valid ObjectID.",
+  )
+  .regex(
+    /^[a-fA-F0-9]+$/,
+    "The ID provided has to only contain hexadecimal characters (a-f, A-F, and 0-9 are allowed)",
+  );
 
 // Blog Comment
 
@@ -19,11 +27,13 @@ export const blogCommentTextSchema = z
   .string({ message: "The comment text provided must be a string." })
   .nonempty("The comment text provided cannot be empty.");
 
-export const blogCommentSchema = z.object({
-  blogId: objectIdSchema,
-  autherId: clerkUserIdSchema,
-  text: blogCommentTextSchema,
-});
+export const blogCommentSchema = z.object(
+  {
+    blogId: objectIdSchema,
+    text: blogCommentTextSchema,
+  },
+  { message: "The blog comment provided must be an object." },
+);
 
 // Blog Entry
 
@@ -44,60 +54,32 @@ export const blogDescriptionSchema = z
   .min(1, "A description with at least one character must be provided.")
   .max(1024, "A blog description cannot exceed 1024 characters.");
 
-export const blogCategorySchema = z.enum(
-  [
-    "news",
-    "fashion",
-    "fitness",
-    "diy",
-    "infographics",
-    "listicles",
-    "case studies",
-    "interviews",
-    "business",
-    "romance",
-    "other",
-  ],
-  {
-    message:
-      'The category of a blog must be one of: "news", "fashion", "fitness", "diy", "infographics", "listicles", "case studies", "interviews", "business", "romance", or "other"',
-  },
-);
-
-export const blogImpressionCountSchema = z
-  .number({ message: "The impression count provided must be a valid number." })
-  .nonnegative("The impression count cannot be negative.")
-  .int("The impression count must be a valid integer.")
-  .finite("The impression count must be finite.")
-  .refine(
-    (x) => !Number.isNaN(x),
-    "The blog impression provided cannot be NaN.",
-  );
+export type PossibleCategory = (typeof possibleCategories)[number];
+export const blogCategorySchema = z.enum(possibleCategories, {
+  message:
+    'The category of a blog must be one of: "news", "fashion", "fitness", "DIY", "infographics", "listicles", "case studies", "interviews", "business", "romance", or "other"',
+});
 
 export const blogContentElementsSchema = z.array(
-  z.enum(["h1", "h2", "h3", "h4", "h5", "h6", "text", "image", "link"], {
-    message:
-      'The impression count provided must be one of: "h1", "h2", "h3", "h4", "h5", "h6", "text", "image", or "link"',
-  }),
+  z.object(
+    {
+      type: z.enum(
+        ["h1", "h2", "h3", "h4", "h5", "h6", "text", "image", "link"],
+        {
+          message:
+            'The impression count provided must be one of: "h1", "h2", "h3", "h4", "h5", "h6", "text", "image", or "link"',
+        },
+      ),
+      content: z.string({ message: "The content provided must be a string." }),
+    },
+    {
+      message: "The blog content elements provided must all be an object each.",
+    },
+  ),
   { message: "The content elements of the blog provided must be in an array." },
 );
 
 export const blogCommentsAllowedSchema = z.boolean({
   message:
     "The value provided for whether comments are allowed or not must be a boolean.",
-});
-
-export const blogEntrySchema = z.object({
-  title: blogTitleSchema,
-  authorIds: z.array(clerkUserIdSchema, {
-    message: "The author IDs provided must be in an array.",
-  }),
-  description: blogDescriptionSchema,
-  category: blogCategorySchema,
-  impressionCount: blogImpressionCountSchema,
-  contentElements: blogContentElementsSchema,
-  commentsAllowed: blogCommentsAllowedSchema,
-  comments: z.array(blogCommentSchema, {
-    message: "The comments of the blog must be in an array.",
-  }),
 });
