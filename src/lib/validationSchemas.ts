@@ -1,25 +1,6 @@
-import { ObjectId } from "mongodb";
 import { z } from "zod";
 import { possibleCategories } from "./categories/possibleCategories";
-
-// MongoDB
-
-export const objectIdSchema = z.instanceof(ObjectId, {
-  message: "The ID provided must be a valid Object ID.",
-});
-
-export const objectIdStringSchema = z
-  .string({
-    message: "The ID provided must be a string.",
-  })
-  .length(
-    24,
-    "The ID provided must be 24 characters long to be a valid ObjectID.",
-  )
-  .regex(
-    /^[a-fA-F0-9]+$/,
-    "The ID provided has to only contain hexadecimal characters (a-f, A-F, and 0-9 are allowed)",
-  );
+// import { objectIdSchema } from "./mongoSchemas/mongoSchemas";
 
 // Blog Comment
 
@@ -29,7 +10,7 @@ export const blogCommentTextSchema = z
 
 export const blogCommentSchema = z.object(
   {
-    blogId: objectIdSchema,
+    // blogId: objectIdSchema,
     text: blogCommentTextSchema,
   },
   { message: "The blog comment provided must be an object." },
@@ -43,11 +24,7 @@ export const blogTitleSchema = z
   })
   .trim()
   .min(1, "A title with a length of at least one character must be provided.")
-  .max(256, "The title of a blog cannot exceed 256 characters")
-  .regex(
-    /^[-_a-zA-Z0-9]+$/,
-    "The title of a blog may only contain letters, digits, hyphens (-), and underscores (_).",
-  );
+  .max(128, "The title of a blog cannot exceed 256 characters");
 
 export const blogDescriptionSchema = z
   .string({ message: "The description provided must be a string." })

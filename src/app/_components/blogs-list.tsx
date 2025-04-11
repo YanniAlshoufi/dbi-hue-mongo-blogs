@@ -10,8 +10,8 @@ import { useAuth } from "@clerk/nextjs";
 import type { WithId } from "mongodb";
 import type { BlogEntry } from "@/server/db/schema";
 
-export function PostList() {
-  const { error, isLoading, data: posts } = api.posts.getAll.useQuery();
+export function BlogsList() {
+  const { error, isLoading, data: posts } = api.blogs.getAll.useQuery();
 
   if (error !== null) {
     return <h2>Sorry, an error occured!</h2>;
@@ -30,6 +30,10 @@ export function PostList() {
                 <Skeleton className="bg-card h-full w-full" />
               </li>
             </>
+          ) : posts.length <= 0 ? (
+            <p className="text-xl text-neutral-500">
+              There aren't any blogs currently :(
+            </p>
           ) : (
             <>
               {posts.map((post) => (
@@ -45,9 +49,9 @@ export function PostList() {
 
 function PostCard(props: { post: WithId<BlogEntry> }) {
   const apiUtils = api.useUtils();
-  const deletionMutation = api.posts.delete.useMutation({
+  const deletionMutation = api.blogs.delete.useMutation({
     onSuccess: async () => {
-      await apiUtils.posts.getAll.invalidate();
+      await apiUtils.blogs.getAll.invalidate();
     },
   });
   const { isSignedIn, userId } = useAuth();
@@ -55,8 +59,7 @@ function PostCard(props: { post: WithId<BlogEntry> }) {
   return (
     <li className="w-full">
       <Card className="w-full flex-row justify-between px-5">
-        {props.post.title} - created{" "}
-        {new Date(props.post.createdAt).toLocaleString()}
+        "{props.post.title}" the user with ID {props.post.authorId}
         {isSignedIn && props.post.authorId === userId ? (
           <Button
             className="hover:to-card bg-transparent shadow-none hover:bg-radial hover:from-red-950"

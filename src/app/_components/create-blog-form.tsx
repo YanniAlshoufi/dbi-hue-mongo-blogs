@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { api } from "@/trpc/react";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +10,6 @@ import {
   blogContentElementsSchema,
   blogDescriptionSchema,
   blogTitleSchema,
-  type PossibleCategory,
 } from "@/lib/validationSchemas";
 import { z } from "zod";
 import {
@@ -25,103 +22,172 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { possibleCategories } from "@/lib/categories/possibleCategories";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-export function LatestPost() {
+const formSchema = z.object({
+  title: blogTitleSchema,
+  description: blogDescriptionSchema,
+  category: blogCategorySchema,
+  commentsAllowed: blogCommentsAllowedSchema,
+  contentElements: blogContentElementsSchema,
+});
+
+export function CreateBlogForm() {
   const utils = api.useUtils();
 
-  const [name, setName] = useState<z.infer<typeof blogTitleSchema>>("");
-  const [description, setDescription] =
-    useState<z.infer<typeof blogDescriptionSchema>>("");
-  const [category, setCategory] = useState<
-    z.infer<typeof blogCategorySchema> | undefined
-  >();
-  const [commentsAllowed, setCommentsAllowed] =
-    useState<z.infer<typeof blogCommentsAllowedSchema>>(false);
-  const [contentElements, setContentElements] =
-    useState<z.infer<typeof blogContentElementsSchema>>();
-
-  const [validationError, setValidationError] = useState("");
-
-  const createPost = api.posts.create.useMutation({
-    onError: (error) => {
-      const err: { message?: string } = JSON.parse(error.message)[0];
-      console.log(error);
-
-      setValidationError(err.message ?? "");
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "news",
+      commentsAllowed: true,
+      contentElements: [],
     },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    createPost.mutate({
+      title: values.title,
+      description: values.description,
+      category: values.category,
+      commentsAllowed: values.commentsAllowed,
+      contentElements: [],
+    });
+  }
+
+  const createPost = api.blogs.create.useMutation({
     onSuccess: async () => {
-      await utils.posts.getAll.invalidate();
-      setName("");
+      await utils.blogs.getAll.invalidate();
     },
   });
 
   return (
     <Card className="w-full">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          createPost.mutate({
-            title: name.trim(),
-            category: "business",
-            commentsAllowed: true,
-            contentElements: [],
-            description: "",
-          });
-        }}
-        className="flex flex-col gap-5 px-5"
-      >
-        <input
-          type="text"
-          placeholder="Title"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-full bg-white/30 px-4 py-2 text-gray-100"
-        />
-        <Textarea
-          placeholder="description"
-          value={description}
-          onInput={(e) =>
-            setDescription((e.target as HTMLTextAreaElement).value)
-          }
-        />
-
-        <Select
-          value={category}
-          onValueChange={(c: PossibleCategory) => {
-            setCategory(c);
-          }}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-5 px-5"
         >
-          <SelectTrigger className="min-w-40">
-            <SelectValue placeholder="Choose a category!" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Categories</SelectLabel>
-              <>
-                {possibleCategories.map((c) => (
-                  <SelectItem value={c} key={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="My cool blog! :D"
+                    className="w-full rounded-full bg-white/30 px-4 py-2 text-gray-100"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <button
-          type="submit"
-          className={`rounded-full bg-white/10 px-10 py-3 font-semibold text-white transition hover:bg-white/20 disabled:bg-white/30`}
-          disabled={createPost.isPending}
-        >
-          {createPost.isPending ? (
-            <>{"Submitting..."}</>
-          ) : (
-            <span className="icon-[mingcute--check-fill]" />
-          )}
-        </button>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="My cool description..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {validationError.length > 0 ? <p>{validationError}</p> : <></>}
-      </form>
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Select>
+                    <SelectTrigger className="min-w-40">
+                      <SelectValue placeholder="Choose a category!" />
+                    </SelectTrigger>
+                    <SelectContent {...field}>
+                      <SelectGroup>
+                        <SelectLabel>Possible Categories:</SelectLabel>
+                        <>
+                          {possibleCategories.map((c) => (
+                            <SelectItem value={c} key={c}>
+                              {c}
+                            </SelectItem>
+                          ))}
+                        </>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="commentsAllowed"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Label {...field}>
+                    <Checkbox classNameIcon="text-white" />
+                    Do you want to allow comments on your blog?
+                  </Label>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="contentElements"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content (the actual blog)</FormLabel>
+                <FormControl>
+                  {/* jklsadjfl ksajdfk saldfj kjlkasdjflk sadjflksd jflk sd */}
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="submit"
+            className={`rounded-full bg-white/10 px-10 py-3 font-semibold text-white transition hover:bg-white/20 disabled:bg-white/30`}
+            disabled={createPost.isPending}
+          >
+            {createPost.isPending ? (
+              <>{"Submitting..."}</>
+            ) : (
+              <span className="icon-[mingcute--check-fill]" />
+            )}
+          </Button>
+        </form>
+      </Form>
     </Card>
   );
 }

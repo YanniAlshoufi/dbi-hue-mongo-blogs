@@ -22,7 +22,7 @@ export type BlogEntry = {
   impressionCount: number;
   contentElements: {
     type: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "text" | "image" | "link";
-    content: unknown;
+    content: string;
   }[];
   commentsAllowed: boolean;
   comments: Comment[];

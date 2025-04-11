@@ -1,11 +1,9 @@
-# Template for Creating Web Apps Quickly! :D
+# Blogs Application
 
-## Tech Stack
+## To run and develop locally
 
-- NextJS (App Router)
-- tRPC
-- Tailwind
-- Tailwind Prose
-- Iconify Tailwind
-- Shadcn
-- Clerk
+```shell
+npm install
+npm run db
+npm run dev
+```

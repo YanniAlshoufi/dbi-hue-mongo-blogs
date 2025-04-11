@@ -1,7 +1,7 @@
-import { LatestPost } from "@/app/_components/create-blog-form";
+import { CreateBlogForm } from "@/app/_components/create-blog-form";
 import { HydrateClient } from "@/trpc/server";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { PostList } from "./_components/blogs-list";
+import { BlogsList } from "./_components/blogs-list";
 import { Card } from "@/components/ui/card";
 
 export default async function Home() {
@@ -9,11 +9,11 @@ export default async function Home() {
     <HydrateClient>
       <main className="flex flex-col items-center justify-center gap-12 px-4 py-16">
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          Hello there! :D
+          Blogs! :D
         </h1>
 
         <div className="flex w-150 flex-col gap-10">
-          <PostList />
+          <BlogsList />
 
           <SignedOut>
             <Card className="px-5">
@@ -21,7 +21,7 @@ export default async function Home() {
             </Card>
           </SignedOut>
           <SignedIn>
-            <LatestPost />
+            <CreateBlogForm />
           </SignedIn>
         </div>
       </main>

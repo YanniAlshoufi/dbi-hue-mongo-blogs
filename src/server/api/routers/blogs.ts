@@ -14,8 +14,8 @@ import {
   blogContentElementsSchema,
   blogDescriptionSchema,
   blogTitleSchema,
-  objectIdStringSchema,
 } from "@/lib/validationSchemas";
+import { objectIdStringSchema } from "@/lib/mongoSchemas/mongoSchemas";
 
 const createBlogEntrySchema = z.object({
   title: blogTitleSchema,
@@ -25,12 +25,12 @@ const createBlogEntrySchema = z.object({
   commentsAllowed: blogCommentsAllowedSchema,
 });
 
-export const postsRouter = createTRPCRouter({
+export const blogsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createBlogEntrySchema)
     .mutation(async ({ ctx, input }) => {
       const collection = ctx.db.collection<BlogEntry>(BLOG_ENTRIES_COLLECTION);
-      await collection.insertOne({
+      const res = await collection.insertOne({
         title: input.title,
         description: input.description,
         authorId: ctx.auth.userId,
@@ -42,6 +42,7 @@ export const postsRouter = createTRPCRouter({
         impressionCount: 0,
         comments: [],
       });
+      console.info("Created blog with id", res.insertedId);
     }),
 
   delete: protectedProcedure
@@ -50,7 +51,7 @@ export const postsRouter = createTRPCRouter({
       const collection = ctx.db.collection<BlogEntry>(BLOG_ENTRIES_COLLECTION);
       const res = await collection.deleteOne({
         _id: new ObjectId(input.postId),
-        userId: ctx.auth.userId,
+        authorId: ctx.auth.userId,
       });
 
       if (!res.acknowledged) {
