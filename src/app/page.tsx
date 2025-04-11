@@ -15,7 +15,7 @@ export default async function Home() {
         <div className="flex w-150 flex-col gap-10">
           <SignedOut>
             <Card className="px-5">
-              <h2>Please sign in to add a post! :]</h2>
+              <h2>Please sign in to add a blog! :]</h2>
             </Card>
           </SignedOut>
           <SignedIn>

@@ -67,7 +67,7 @@ function PostCard(props: { blog: WithId<BlogEntry> }) {
         "{props.blog.title}" the user with ID {props.blog.authorId}
         {isSignedIn && props.blog.authorId === userId ? (
           <Button
-            className="hover:to-card bg-transparent shadow-none hover:bg-radial hover:from-red-950"
+            className="hover:to-card bg-transparent shadow-none"
             onClick={async () =>
               await deletionMutation.mutateAsync({
                 postId: props.blog._id.toString(),

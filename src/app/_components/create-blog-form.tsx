@@ -151,8 +151,11 @@ export function CreateBlogForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Label {...field}>
-                    <Checkbox classNameIcon="text-white" />
+                  <Label>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                     Do you want to allow comments on your blog?
                   </Label>
                 </FormControl>
