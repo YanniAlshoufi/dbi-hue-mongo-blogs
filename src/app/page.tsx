@@ -13,8 +13,6 @@ export default async function Home() {
         </h1>
 
         <div className="flex w-150 flex-col gap-10">
-          <BlogsList />
-
           <SignedOut>
             <Card className="px-5">
               <h2>Please sign in to add a post! :]</h2>
@@ -23,6 +21,9 @@ export default async function Home() {
           <SignedIn>
             <CreateBlogForm />
           </SignedIn>
+
+          <h2 className="text-3xl">Blog list:</h2>
+          <BlogsList />
         </div>
       </main>
     </HydrateClient>

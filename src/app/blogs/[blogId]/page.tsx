@@ -14,7 +14,7 @@ export default async function Index({
 
   return (
     <div className="flex justify-center">
-      <main className="prose-lg flex w-full flex-col items-center bg-gray-950 px-20 py-10">
+      <main className="prose-lg bg-background mt-10 flex max-w-15/16 min-w-3/5 flex-col items-center px-20 py-10 shadow ring ring-white">
         <article className="max-w-prose">
           <h1>{blog?.title}</h1>
 

@@ -9,6 +9,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@clerk/nextjs";
 import type { WithId } from "mongodb";
 import type { BlogEntry } from "@/server/db/schema";
+import { useRouter } from "next/navigation";
 
 export function BlogsList() {
   const { error, isLoading, data: posts } = api.blogs.getAll.useQuery();
@@ -37,7 +38,7 @@ export function BlogsList() {
           ) : (
             <>
               {posts.map((post) => (
-                <PostCard post={post} key={post._id.toString()} />
+                <PostCard blog={post} key={post._id.toString()} />
               ))}
             </>
           )}
@@ -47,7 +48,7 @@ export function BlogsList() {
   );
 }
 
-function PostCard(props: { post: WithId<BlogEntry> }) {
+function PostCard(props: { blog: WithId<BlogEntry> }) {
   const apiUtils = api.useUtils();
   const deletionMutation = api.blogs.delete.useMutation({
     onSuccess: async () => {
@@ -55,17 +56,21 @@ function PostCard(props: { post: WithId<BlogEntry> }) {
     },
   });
   const { isSignedIn, userId } = useAuth();
+  const router = useRouter();
 
   return (
-    <li className="w-full">
-      <Card className="w-full flex-row justify-between px-5">
-        "{props.post.title}" the user with ID {props.post.authorId}
-        {isSignedIn && props.post.authorId === userId ? (
+    <li className="cursor-pointer transition-[scale] ease-in hover:scale-99">
+      <Card
+        className="flex-row justify-between px-5"
+        onClick={() => router.push(`/blogs/${props.blog._id.toString()}`)}
+      >
+        "{props.blog.title}" the user with ID {props.blog.authorId}
+        {isSignedIn && props.blog.authorId === userId ? (
           <Button
             className="hover:to-card bg-transparent shadow-none hover:bg-radial hover:from-red-950"
             onClick={async () =>
               await deletionMutation.mutateAsync({
-                postId: props.post._id.toString(),
+                postId: props.blog._id.toString(),
               })
             }
           >

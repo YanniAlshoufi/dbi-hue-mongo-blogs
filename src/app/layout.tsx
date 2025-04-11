@@ -37,7 +37,7 @@ export default function RootLayout({
       <TRPCReactProvider>
         <html lang="en">
           <body
-            className={`${geist.variable} dark min-h-dvh bg-radial from-orange-950 to-neutral-950 antialiased`}
+            className={`${geist.variable} dark from-background min-h-dvh bg-gradient-to-br to-gray-950 antialiased`}
           >
             <header className="bg-card flex h-16 items-center justify-end gap-4 p-4">
               <SignedOut>
