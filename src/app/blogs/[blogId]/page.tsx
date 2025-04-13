@@ -1,6 +1,8 @@
+import CommentForm from "@/app/_components/comment-form";
 import { db } from "@/server/db";
 import { BLOG_ENTRIES_COLLECTION, type BlogEntry } from "@/server/db/schema";
 import { ObjectId } from "mongodb";
+import CommentList from "@/app/_components/comment-list";
 
 export default async function Index({
   params,
@@ -35,6 +37,8 @@ export default async function Index({
               }
             </div>
           ))}
+          <CommentForm blogId={blog?._id.toString()}></CommentForm>
+          <CommentList blogId={blog?._id.toString()}></CommentList>
         </article>
       </main>
     </div>

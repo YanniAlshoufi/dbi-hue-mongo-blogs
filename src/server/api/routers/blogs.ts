@@ -6,7 +6,12 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import {BLOG_ENTRIES_COLLECTION, type BlogEntry, COMMENTS_COLLECTION, type DbiComment} from "@/server/db/schema";
+import {
+  BLOG_ENTRIES_COLLECTION,
+  type BlogEntry,
+  COMMENTS_COLLECTION,
+  type DbiComment,
+} from "@/server/db/schema";
 import { ObjectId } from "mongodb";
 import {
   blogCategorySchema,
@@ -24,16 +29,6 @@ const createBlogEntrySchema = z.object({
   contentElements: blogContentElementsSchema,
   commentsAllowed: blogCommentsAllowedSchema,
 });
-
-const createCommentSchema = z.object({
-    blogId: objectIdStringSchema,
-    text: z.string().min(1),
-});
-
-const getCommentsSchema = z.object({
-    blogId: objectIdStringSchema,
-});
-
 
 export const blogsRouter = createTRPCRouter({
   create: protectedProcedure
@@ -78,9 +73,13 @@ export const blogsRouter = createTRPCRouter({
     return await collection.find().sort({ createdAt: -1 }).toArray();
   }),
 
-
   addComment: protectedProcedure
-    .input(createCommentSchema)
+    .input(
+      z.object({
+        blogId: objectIdStringSchema,
+        text: z.string().min(1),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const blogCollection = ctx.db.collection<BlogEntry>(
         BLOG_ENTRIES_COLLECTION,
@@ -109,8 +108,9 @@ export const blogsRouter = createTRPCRouter({
       await commentsCollection.insertOne(newComment);
       return newComment;
     }),
+
   getComments: publicProcedure
-    .input(getCommentsSchema)
+    .input(z.object({ blogId: objectIdStringSchema }))
     .query(async ({ ctx, input }) => {
       const commentsCollection =
         ctx.db.collection<DbiComment>(COMMENTS_COLLECTION);

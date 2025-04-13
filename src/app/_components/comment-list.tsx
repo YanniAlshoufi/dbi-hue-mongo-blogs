@@ -2,13 +2,20 @@
 
 import { api } from "@/trpc/react";
 
-type CommentListProps = {
-  blogId: string;
-};
+export default function CommentList({
+  blogId,
+}: {
+  blogId: string | undefined;
+}) {
+  if (!blogId) {
+    return null;
+  }
+  const { data: comments, isLoading } = api.blogs.getComments.useQuery(
+    { blogId },
+    { enabled: !!blogId },
+  );
 
-export default function CommentList({ blogId }: CommentListProps) {
-  const { data: comments } = api.blogs.getComments.useQuery({ blogId });
-
+  if (isLoading) return <p>Lade Kommentare...</p>;
   if (!comments || comments.length === 0) {
     return <p>Noch keine Kommentare vorhanden.</p>;
   }
