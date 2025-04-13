@@ -1,5 +1,6 @@
 import type { ObjectId } from "mongodb";
 
+
 export const BLOG_ENTRIES_COLLECTION = "blogEntries";
 export type BlogEntry = {
   title: string;
@@ -25,12 +26,12 @@ export type BlogEntry = {
     content: string;
   }[];
   commentsAllowed: boolean;
-  comments: Comment[];
+  comments: DbiComment[];
 };
 
 export const COMMENTS_COLLECTION = "comments";
 
-export type Comment = {
+export type DbiComment = {
   blogId: ObjectId;
   authorId: string;
   text: string;
