@@ -4,15 +4,9 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
+import { SelectOfCurrentUser } from "./_components/select-current-user";
+import { db } from "@/server/db";
+import { BLOG_USERS_COLLECTION, type BlogUser } from "@/server/db/schema";
 
 export const metadata: Metadata = {
   title: "Web App",
@@ -25,33 +19,29 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const collection = db.collection<BlogUser>(BLOG_USERS_COLLECTION);
+  const currentUsers = await collection.find().toArray();
+
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-      }}
-    >
-      <TRPCReactProvider>
-        <html lang="en">
-          <body
-            className={`${geist.variable} dark from-background min-h-dvh bg-gradient-to-br to-gray-950 antialiased`}
-          >
-            <header className="bg-card flex h-16 items-center justify-end gap-4 p-4">
-              <SignedOut>
-                <SignInButton />
-                <SignUpButton />
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-            </header>
-            {children}
-          </body>
-        </html>
-      </TRPCReactProvider>
-    </ClerkProvider>
+    <TRPCReactProvider>
+      <html lang="en">
+        <body
+          className={`${geist.variable} dark from-background min-h-dvh bg-gradient-to-br to-gray-950 antialiased`}
+        >
+          <header className="bg-card flex h-16 items-center justify-end gap-4 p-4">
+            <SelectOfCurrentUser
+              possibleUsers={currentUsers.map((u) => ({
+                id: u._id.toString(),
+                username: u.username,
+              }))}
+            />
+          </header>
+          {children}
+        </body>
+      </html>
+    </TRPCReactProvider>
   );
 }

@@ -37,7 +37,7 @@ export type BlogEntry = {
     | "news"
     | "fashion"
     | "fitness"
-    | "DIY"
+    | "diy"
     | "infographics"
     | "listicles"
     | "case_study"

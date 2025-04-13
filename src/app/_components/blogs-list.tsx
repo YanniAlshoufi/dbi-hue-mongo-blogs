@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useAuth } from "@clerk/nextjs";
 import type { WithId } from "mongodb";
 import type { BlogEntry } from "@/server/db/schema";
 import { useRouter } from "next/navigation";
@@ -55,7 +54,6 @@ function PostCard(props: { blog: WithId<BlogEntry> }) {
       await apiUtils.blogs.getAll.invalidate();
     },
   });
-  const { isSignedIn, userId } = useAuth();
   const router = useRouter();
 
   return (
@@ -64,7 +62,7 @@ function PostCard(props: { blog: WithId<BlogEntry> }) {
         className="flex-row justify-between px-5"
         onClick={() => router.push(`/blogs/${props.blog._id.toString()}`)}
       >
-        "{props.blog.title}" the user with ID {props.blog.authorId}
+        "{props.blog.title}" the user with ID {props.blog.authorId.toString()}
         {isSignedIn && props.blog.authorId === userId ? (
           <Button
             className="hover:to-card bg-transparent shadow-none"

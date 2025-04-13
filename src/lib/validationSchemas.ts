@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { possibleCategories } from "./categories/possibleCategories";
-// import { objectIdSchema } from "./mongoSchemas/mongoSchemas";
+import { POSSIBLE_CATEGORY_KEYS } from "./categories/possibleCategories";
+import { objectIdSchema } from "./mongoSchemas/mongoSchemas";
 
 // Blog Comment
 
@@ -10,7 +10,7 @@ export const blogCommentTextSchema = z
 
 export const blogCommentSchema = z.object(
   {
-    // blogId: objectIdSchema,
+    blogId: objectIdSchema,
     text: blogCommentTextSchema,
   },
   { message: "The blog comment provided must be an object." },
@@ -31,29 +31,53 @@ export const blogDescriptionSchema = z
   .min(1, "A description with at least one character must be provided.")
   .max(1024, "A blog description cannot exceed 1024 characters.");
 
-export type PossibleCategory = (typeof possibleCategories)[number];
-export const blogCategorySchema = z.enum(possibleCategories, {
+export const blogCategorySchema = z.enum(POSSIBLE_CATEGORY_KEYS, {
   message:
     'The category of a blog must be one of: "news", "fashion", "fitness", "DIY", "infographics", "listicles", "case studies", "interviews", "business", "romance", or "other"',
 });
 
 export const blogContentElementsSchema = z.array(
-  z.object(
-    {
-      type: z.enum(
-        ["h1", "h2", "h3", "h4", "h5", "h6", "text", "image", "link"],
-        {
-          message:
-            'The impression count provided must be one of: "h1", "h2", "h3", "h4", "h5", "h6", "text", "image", or "link"',
-        },
-      ),
-      content: z.string({ message: "The content provided must be a string." }),
-    },
-    {
-      message: "The blog content elements provided must all be an object each.",
-    },
-  ),
-  { message: "The content elements of the blog provided must be in an array." },
+  z.union([
+    z.object({
+      type: z.enum(["h1", "h2", "h3", "h4", "h5", "h6", "text"]),
+      content: z.object({
+        text: z.string({ message: "The content provided must be a string." }),
+      }),
+    }),
+    z.object({
+      type: z.literal("link"),
+      content: z.object({
+        displayText: z
+          .string({ message: "The display text of a link must be a string." })
+          .trim()
+          .nonempty("The display text of a link cannot be empty."),
+        link: z
+          .string({
+            message: "The link of a link element must be a string.",
+          })
+          .url("The link of a link element must be a valid url."),
+      }),
+    }),
+    z.object({
+      type: z.literal("image"),
+      content: z.object({
+        base64: z
+          .string({
+            message: "The base64 version of an image must be a string.",
+          })
+          .base64("The base64 version of an image must be valid base64."),
+        alt: z
+          .string({
+            message:
+              "The alternative text of an image element must be a string.",
+          })
+          .trim()
+          .nonempty(
+            "The alternative text of an image element must not be empty.",
+          ),
+      }),
+    }),
+  ]),
 );
 
 export const blogCommentsAllowedSchema = z.boolean({

@@ -1,6 +1,8 @@
 import { db } from "@/server/db";
 import { BLOG_ENTRIES_COLLECTION, type BlogEntry } from "@/server/db/schema";
 import { ObjectId } from "mongodb";
+import Image from "next/image";
+import Link from "next/link";
 
 export default async function Index({
   params,
@@ -20,19 +22,32 @@ export default async function Index({
 
           {blog?.contentElements.map((contentElement, idx) => (
             <div key={idx}>
-              {
-                {
-                  h1: <h1>{contentElement.content}</h1>,
-                  h2: <h2>{contentElement.content}</h2>,
-                  h3: <h3>{contentElement.content}</h3>,
-                  h4: <h4>{contentElement.content}</h4>,
-                  h5: <h5>{contentElement.content}</h5>,
-                  h6: <h6>{contentElement.content}</h6>,
-                  text: <p>{contentElement.content}</p>,
-                  link: <a>{contentElement.content}</a>,
-                  image: <img src={contentElement.content} />,
-                }[contentElement.type]
-              }
+              {contentElement.type === "h1" ? (
+                <h1>{contentElement.content.text}</h1>
+              ) : contentElement.type === "h2" ? (
+                <h2>{contentElement.content.text}</h2>
+              ) : contentElement.type === "h3" ? (
+                <h3>{contentElement.content.text}</h3>
+              ) : contentElement.type === "h4" ? (
+                <h4>{contentElement.content.text}</h4>
+              ) : contentElement.type === "h5" ? (
+                <h5>{contentElement.content.text}</h5>
+              ) : contentElement.type === "h6" ? (
+                <h6>{contentElement.content.text}</h6>
+              ) : contentElement.type === "text" ? (
+                <p>{contentElement.content.text}</p>
+              ) : contentElement.type === "link" ? (
+                <Link href={contentElement.content.link}>
+                  {contentElement.content.displayText}
+                </Link>
+              ) : contentElement.type === "image" ? (
+                <Image
+                  src={`data:image/png;base64, ${contentElement.content.base64}`}
+                  alt={contentElement.content.alt}
+                />
+              ) : (
+                <p>Sorry, this element cannot be displayed.</p>
+              )}
             </div>
           ))}
         </article>

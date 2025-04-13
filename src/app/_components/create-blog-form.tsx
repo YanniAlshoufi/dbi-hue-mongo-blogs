@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { possibleCategories } from "@/lib/categories/possibleCategories";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,6 +35,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useUserStore } from "./user-store";
 
 const formSchema = z.object({
   title: blogTitleSchema,
@@ -46,7 +46,14 @@ const formSchema = z.object({
 });
 
 export function CreateBlogForm() {
+  const userStore = useUserStore();
   const utils = api.useUtils();
+
+  const {
+    data: possibleCategories,
+    isLoading,
+    error,
+  } = api.blogs.getAllCategories.useQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,6 +68,7 @@ export function CreateBlogForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     createPost.mutate({
+      userId: userStore.currentUser!.id,
       title: values.title,
       description: values.description,
       category: values.category,
@@ -74,6 +82,14 @@ export function CreateBlogForm() {
       await utils.blogs.getAll.invalidate();
     },
   });
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <h1 className="text-5xl">Sorry, an error occured!</h1>;
+  }
 
   return (
     <Card className="w-full">
@@ -130,9 +146,9 @@ export function CreateBlogForm() {
                       <SelectGroup>
                         <SelectLabel>Possible Categories:</SelectLabel>
                         <>
-                          {possibleCategories.map((c) => (
-                            <SelectItem value={c} key={c}>
-                              {c}
+                          {possibleCategories!.map((c) => (
+                            <SelectItem value={c.key} key={c.key}>
+                              {c.value}
                             </SelectItem>
                           ))}
                         </>

@@ -1,13 +1,15 @@
-export const possibleCategories = [
+export const POSSIBLE_CATEGORY_KEYS = [
   "news",
   "fashion",
   "fitness",
-  "DIY",
+  "diy",
   "infographics",
   "listicles",
-  "case studies",
+  "case_study",
   "interviews",
   "business",
   "romance",
   "other",
 ] as const;
+
+export type PossibleCategoryKey = (typeof POSSIBLE_CATEGORY_KEYS)[number];
