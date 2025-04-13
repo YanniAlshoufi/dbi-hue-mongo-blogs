@@ -36,7 +36,7 @@ export const blogsRouter = createTRPCRouter({
         authorId: ctx.auth.userId,
         createdAt: Date.now(),
         editedAt: Date.now(),
-        category: input.category,
+        Key: input.category,
         commentsAllowed: input.commentsAllowed,
         contentElements: input.contentElements,
         impressionCount: 0,
